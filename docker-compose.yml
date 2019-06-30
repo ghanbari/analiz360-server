@@ -1,0 +1,166 @@
+version: '3.4'
+
+x-cache:
+  &cache
+  cache_from:
+    - ${CONTAINER_REGISTRY_BASE}/php
+    - ${CONTAINER_REGISTRY_BASE}/nginx
+    - ${CONTAINER_REGISTRY_BASE}/varnish
+
+x-api-envs:
+  environment: &api-params
+    MYSQL_DATABASE: ${MYSQL_DATABASE:?Database name is not defined}
+    MYSQL_USER: ${MYSQL_USER:?Database user is not defined}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Database password is not defined}
+    RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?You must define rabbit default user}
+    RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?You must define rabbit default pass}
+    APP_MERCURE_KEY: ${APP_MERCURE_KEY:?You must set value for mercure key}
+    APP_DOMAIN: ${APP_DOMAIN:?You must define app domain address.}
+    APP_SECRET: ${APP_SECRET:?App secret is not defined}
+    APP_OVER_HTTPS: ${APP_OVER_HTTPS:?App is over https or http?}
+    APP_BASE_URL: ${APP_BASE_URL?App base url is not defined}
+
+services:
+  php:
+    image: ${CONTAINER_REGISTRY_BASE}/php
+    build:
+      context: ./api
+      target: api_platform_php
+      args:
+        <<: [*api-params]
+      <<: *cache
+    depends_on:
+      - db
+    environment:
+      <<: [*api-params]
+    volumes:
+      - ./logs/symfony:/srv/api/var/log:cached
+    restart: always
+
+  api:
+    image: ${CONTAINER_REGISTRY_BASE}/nginx
+    build:
+      context: ./api
+      target: api_platform_nginx
+      <<: *cache
+    depends_on:
+      - php
+    volumes:
+      - ./api/repo/public:/srv/api/public:ro
+      - ./logs/nginx:/var/log/nginx:cached
+    ports:
+      - "8080:80"
+    restart: always
+
+  cache-proxy:
+    image: ${CONTAINER_REGISTRY_BASE}/varnish
+    build:
+      context: ./api
+      target: api_platform_varnish
+      <<: *cache
+    depends_on:
+      - api
+    volumes:
+      - ./api/docker/varnish/conf:/usr/local/etc/varnish:ro
+    tmpfs:
+      - /usr/local/var/varnish:exec
+    ports:
+      - "8081:80"
+    restart: always
+
+  db:
+    image: mysql:5.7
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Database root password can not be empty}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Database name is not defined}
+      MYSQL_USER: ${MYSQL_USER:?Database user is not defined}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Database password is not defined}
+    volumes:
+       - ./docker/db/data:/var/lib/mysql:rw
+    ports:
+      - "3306:3306"
+    restart: always
+
+  mercure:
+    image: dunglas/mercure
+    environment:
+      # You should definitely change all these values in production
+      - JWT_KEY=${APP_MERCURE_KEY:?You must set value for mercure key}
+      - ALLOW_ANONYMOUS=${APP_MERCURE_ALLOW_ANONYMOUS:-1}
+      - CORS_ALLOWED_ORIGINS=${APP_MERCURE_CORS_ALLOWED_ORIGINS:?You must define mercure cors allowed origins}
+      - PUBLISH_ALLOWED_ORIGINS=${APP_MERCURE_PUBLISH_ALLOWED_ORIGINS:?You must define mercure publish allowed origin}
+      - DEMO=${APP_MERCURE_IS_DEMO:-0}
+    ports:
+      - "1337:80"
+    restart: always
+
+  client:
+    image: ${CONTAINER_REGISTRY_BASE}/client
+    build:
+      context: ./client
+      cache_from:
+        - ${CONTAINER_REGISTRY_BASE}/client
+      args:
+        - APP_API_ENTRYPOINT=${APP_API_ENTRYPOINT:?You must define app api entrypoint}
+
+  h2-proxy:
+    build:
+      context: ./h2-proxy
+    depends_on:
+      - client
+      - api
+      - cache-proxy
+      - rabbit
+    ports:
+      - "443:443"
+    restart: always
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    hostname: rabbit
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:?You must define rabbit cookie}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?You must define rabbit default user}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?You must define rabbit default pass}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST:?You must define rabbit default vhost}
+      # it is used internally
+    ports:
+      - "5672:5672"
+    volumes:
+      - ./rabbit/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    restart: always
+
+  message-bus:
+    image: ${CONTAINER_REGISTRY_BASE}/php
+    depends_on:
+      - php
+      - rabbit
+    command: /bin/sh -c "sleep 30; bin/console messenger:consume --memory-limit=256M --no-interaction"
+    environment:
+      <<: [*api-params]
+    volumes:
+      - ./logs/symfony:/srv/api/var/log:cached
+    restart: always
+
+  sms-check-status:
+    image: ${CONTAINER_REGISTRY_BASE}/php
+    depends_on:
+      - php
+    command: ["bin/console", "app:sms-check-status", "--no-interaction"]
+    environment:
+      <<: [*api-params]
+    volumes:
+      - ./logs/symfony:/srv/api/var/log:cached
+    restart: always
+
+  sms-outbox:
+    image: ${CONTAINER_REGISTRY_BASE}/php
+    depends_on:
+      - php
+    command: ["bin/console", "app:sms-outbox", "--no-interaction"]
+    environment:
+      <<: [*api-params]
+    volumes:
+      - ./logs/symfony:/srv/api/var/log:cached
+    restart: always

@@ -1,0 +1,6 @@
+[submodule "client/repo"]
+	path = client/repo
+	url = git@github.com:ghanbari/analiz360-client.git
+[submodule "api/repo"]
+	path = api/repo
+	url = git@github.com:ghanbari/analiz360-api.git

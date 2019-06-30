@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  php:
+    build:
+      args:
+        APP_ENV: prod
+
+  api:
+    build:
+      args:
+        APP_ENV: prod
+
+  cache-proxy:
+    build:
+      args:
+        APP_ENV: prod
+
+  client:
+    build:
+      target: 'production-stage'
+    environment:
+      APP_ENV: prod
+    ports:
+      - '3000:80'

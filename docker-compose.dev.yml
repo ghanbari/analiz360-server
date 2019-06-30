@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  php:
+    build:
+      args:
+        APP_ENV: dev
+    volumes:
+      - ./api/repo/:/srv/api:rw,cached
+
+  api:
+    build:
+      args:
+        APP_ENV: dev
+
+  cache-proxy:
+    build:
+      args:
+        APP_ENV: dev
+
+  client:
+    build:
+      target: 'develop-stage'
+    command: /bin/sh -c "yarn serve"
+    environment:
+      APP_ENV: dev
+      APP_CLIENT_PORT: ${APP_CLIENT_PORT:-3000}
+      APP_OVER_HTTPS: ${APP_OVER_HTTPS:?You must specify app is over https or not}
+      APP_REMOTE_IP: ${APP_REMOTE_IP:?You must specify app remote ip}
+      APP_DOMAIN: ${APP_DOMAIN:?You must specify app domain address}
+    volumes:
+      - ./client/repo:/usr/src/client:rw,cached
+      - /usr/src/client/node_modules
+    ports:
+      - '3000:3000'
