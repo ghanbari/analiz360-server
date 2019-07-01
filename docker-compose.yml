@@ -168,7 +168,7 @@ services:
   datadog:
     build:
       context: ./datadog
-      image: datadog
+    image: datadog
     environment:
       - DD_API_KEY=${DATA_DOG_API_KEY:?Datadog api key is not defined}
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
