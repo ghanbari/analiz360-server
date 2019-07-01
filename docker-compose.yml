@@ -136,7 +136,7 @@ services:
     depends_on:
       - php
       - rabbit
-    command: /bin/sh -c "sleep 30; bin/console messenger:consume --memory-limit=256M --no-interaction"
+    command: /bin/sh -c "sleep 30; docker-entrypoint bin/console messenger:consume --memory-limit=256M --no-interaction"
     environment:
       <<: [*api-params]
     volumes:
@@ -164,3 +164,15 @@ services:
     volumes:
       - ./logs/symfony:/srv/api/var/log:cached
     restart: always
+
+  datadog:
+    build:
+      context: ./datadog
+      image: datadog
+    environment:
+      - DD_API_KEY=${DATA_DOG_API_KEY:?Datadog api key is not defined}
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
