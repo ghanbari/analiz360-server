@@ -25,6 +25,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
         sed -i.bak "s/^APP_HOST=localhost$/APP_HOST=${APP_DOMAIN}/" .env.local
         sed -i.bak "s/^APP_SCHEME=http$/APP_SCHEME=${schema}/" .env.local
         sed -i.bak "s/^APP_BASE_URL=''$/APP_BASE_URL=${APP_BASE_URL}/" .env.local
+        sed -i.bak "s/^APP_SMS_PROVIDER_API_KEY=apikey$/APP_SMS_PROVIDER_API_KEY=${APP_SMS_API_KEY}/" .env.local
+        sed -i.bak "s/^APP_SMS_PROVIDER_SENDER_NUMBER=senderNumber$/APP_SMS_PROVIDER_SENDER_NUMBER=${APP_SMS_SENDER_NUMBER}/" .env.local
 
         sed -i.bak "s;^DATABASE_URL=mysql://db_user:db_password@127.0.0.1:3306/db_name$;DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE};" .env.local
 
@@ -44,6 +46,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
         sed -i.bak "s/'APP_HOST' => 'localhost',$/'APP_HOST' => '${APP_DOMAIN}',/" .env.local.php
         sed -i.bak "s/'APP_SCHEME' => 'http',$/'APP_SCHEME' => '${schema}',/" .env.local.php
         sed -i.bak "s/'APP_BASE_URL' => '',$/'APP_BASE_URL' => '${APP_BASE_URL}',/" .env.local.php
+        sed -i.bak "s/'APP_SMS_PROVIDER_API_KEY' => 'apikey',$/'APP_SMS_PROVIDER_API_KEY' => '${APP_SMS_API_KEY}',/" .env.local.php
+        sed -i.bak "s/'APP_SMS_PROVIDER_SENDER_NUMBER' => 'senderNumber',$/'APP_SMS_PROVIDER_SENDER_NUMBER' => '${APP_SMS_SENDER_NUMBER}',/" .env.local.php
 
         sed -i.bak "s;'DATABASE_URL' => 'mysql://db_user:db_password@127.0.0.1:3306/db_name',$;'DATABASE_URL' => 'mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}',;" .env.local.php
 
