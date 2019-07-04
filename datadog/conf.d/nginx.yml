@@ -15,7 +15,7 @@ instances:
   ## set nginx_status_url to the location of the `/api` endpoint.
   ## E.g. `nginx_status_url: http://localhost:8080/api`
   #
-  - nginx_status_url: http://localhost:81/nginx_status/
+  - nginx_status_url: curl http://h2-proxy:81/nginx_status/
 
     ## @param use_plus_api - boolean - optional - default: false
     ## If you are using the commercial version of nginx, for releases R13 and above,
@@ -77,8 +77,7 @@ instances:
 ## tags: - optional - Add tags to the collected logs
 ##
 ## Discover Datadog log collection: https://docs.datadoghq.com/logs/log_collection/
-#
- logs:
+logs:
   - type: file
     path: /var/log/nginx/access.log
     service: nginx
