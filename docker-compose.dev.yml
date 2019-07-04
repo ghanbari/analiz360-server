@@ -18,6 +18,22 @@ services:
       args:
         APP_ENV: dev
 
+  message-bus:
+    volumes:
+      - ./api/repo/:/srv/api:rw,cached
+
+  sms-check-status:
+    volumes:
+      - ./api/repo/:/srv/api:rw,cached
+
+  sms-outbox:
+    volumes:
+      - ./api/repo/:/srv/api:rw,cached
+
+  alexa:
+    volumes:
+      - ./api/repo/:/srv/api:rw,cached
+
   client:
     build:
       target: 'develop-stage'
