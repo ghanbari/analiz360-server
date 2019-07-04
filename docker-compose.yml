@@ -67,6 +67,7 @@ services:
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./api/docker/varnish/conf:/usr/local/etc/varnish:ro
+      - /usr/local/bin/varnishstat:/usr/local/bin/varnishstat:exec
     tmpfs:
       - /usr/local/var/varnish:exec
     ports:
@@ -201,9 +202,9 @@ services:
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
       DD_LOGS_ENABLED: "true"
-      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "true"
     volumes:
       - ./logs/nginx/:/var/log/nginx/:ro
+      - /usr/local/bin/varnishstat:/usr/bin/varnishstat:exec
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
