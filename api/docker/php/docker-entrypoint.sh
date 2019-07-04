@@ -36,11 +36,13 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 
         sed -i.bak 's;^#TRUSTED_PROXIES=127.0.0.1,127.0.0.2$;TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/20,127.0.0.1/20;' .env.local
         sed -i.bak "s/^#TRUSTED_HOSTS='\^localhost|example\\\.com\$'$/TRUSTED_HOSTS='^localhost|api|(.*\.)?${APP_DOMAIN}$'/" .env.local
+        sed -i.bak 's/\^ Request::HEADER_X_FORWARDED_HOST//' public/index.php
         sed -i.bak "s;explode(',', \$trustedProxies);['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/20', '127.0.0.1/20'];" public/index.php
 
-        composer dump-env ${APP_ENV}
-        rm .env.local.bak
         composer install --prefer-dist --dev --no-progress --no-suggest --no-interaction
+
+        composer dump-env ${APP_ENV}
+        rm -f .env.local.bak
     else
         sed -i.bak "s/'APP_SECRET' => '\!ChangeMe\!',$/'APP_SECRET' => '${APP_SECRET}',/" .env.local.php
         sed -i.bak "s/'APP_HOST' => 'localhost',$/'APP_HOST' => '${APP_DOMAIN}',/" .env.local.php
