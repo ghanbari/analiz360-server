@@ -19,6 +19,7 @@ x-api-envs:
     APP_SECRET: ${APP_SECRET:?App secret is not defined}
     APP_OVER_HTTPS: ${APP_OVER_HTTPS:?App is over https or http?}
     APP_BASE_URL: ${APP_BASE_URL?App base url is not defined}
+    TZ: ${APP_TIMEZONE:-Asia/Tehran}
 
 services:
   php:
@@ -45,6 +46,8 @@ services:
       <<: *cache
     depends_on:
       - php
+    environment:
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./api/repo/public:/srv/api/public:ro
       - ./logs/nginx:/var/log/nginx:cached
@@ -60,6 +63,8 @@ services:
       <<: *cache
     depends_on:
       - api
+    environment:
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./api/docker/varnish/conf:/usr/local/etc/varnish:ro
     tmpfs:
@@ -76,8 +81,10 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:?Database name is not defined}
       MYSQL_USER: ${MYSQL_USER:?Database user is not defined}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Database password is not defined}
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
        - ./docker/db/data:/var/lib/mysql:rw
+       - /logs/mysql:/var/log/mysql/
     ports:
       - "3306:3306"
     restart: always
@@ -85,12 +92,12 @@ services:
   mercure:
     image: dunglas/mercure
     environment:
-      # You should definitely change all these values in production
-      - JWT_KEY=${APP_MERCURE_KEY:?You must set value for mercure key}
-      - ALLOW_ANONYMOUS=${APP_MERCURE_ALLOW_ANONYMOUS:-1}
-      - CORS_ALLOWED_ORIGINS=${APP_MERCURE_CORS_ALLOWED_ORIGINS:?You must define mercure cors allowed origins}
-      - PUBLISH_ALLOWED_ORIGINS=${APP_MERCURE_PUBLISH_ALLOWED_ORIGINS:?You must define mercure publish allowed origin}
-      - DEMO=${APP_MERCURE_IS_DEMO:-0}
+      JWT_KEY: ${APP_MERCURE_KEY:?You must set value for mercure key}
+      ALLOW_ANONYMOUS: ${APP_MERCURE_ALLOW_ANONYMOUS:-1}
+      CORS_ALLOWED_ORIGINS: ${APP_MERCURE_CORS_ALLOWED_ORIGINS:?You must define mercure cors allowed origins}
+      PUBLISH_ALLOWED_ORIGINS: ${APP_MERCURE_PUBLISH_ALLOWED_ORIGINS:?You must define mercure publish allowed origin}
+      DEMO: ${APP_MERCURE_IS_DEMO:-0}
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     ports:
       - "1337:80"
     restart: always
@@ -103,6 +110,8 @@ services:
         - ${CONTAINER_REGISTRY_BASE}/client
       args:
         - APP_API_ENTRYPOINT=${APP_API_ENTRYPOINT:?You must define app api entrypoint}
+    environment:
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
 
   h2-proxy:
     build:
@@ -114,6 +123,8 @@ services:
       - rabbit
     ports:
       - "443:443"
+    environment:
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     restart: always
 
   rabbit:
@@ -124,6 +135,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?You must define rabbit default user}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?You must define rabbit default pass}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST:?You must define rabbit default vhost}
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
       # it is used internally
     ports:
       - "5672:5672"
@@ -139,6 +151,7 @@ services:
     command: /bin/sh -c "sleep 30; docker-entrypoint bin/console messenger:consume --memory-limit=256M --no-interaction"
     environment:
       <<: [*api-params]
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./logs/symfony:/srv/api/var/log:cached
     restart: always
@@ -150,6 +163,7 @@ services:
     command: ["bin/console", "app:sms-check-status", "--no-interaction"]
     environment:
       <<: [*api-params]
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./logs/symfony:/srv/api/var/log:cached
     restart: always
@@ -161,6 +175,19 @@ services:
     command: ["bin/console", "app:sms-outbox", "--no-interaction"]
     environment:
       <<: [*api-params]
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
+    volumes:
+      - ./logs/symfony:/srv/api/var/log:cached
+    restart: always
+
+  alexa:
+    image: ${CONTAINER_REGISTRY_BASE}/php
+    depends_on:
+      - php
+    command: ["bin/console", "alexa:report", "--no-interaction", "-c", "100", "-m", "250M"]
+    environment:
+      <<: [*api-params]
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./logs/symfony:/srv/api/var/log:cached
     restart: always
@@ -170,8 +197,9 @@ services:
       context: ./datadog
     image: datadog
     environment:
-      - DD_API_KEY=${DATA_DOG_API_KEY:?Datadog api key is not defined}
-      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      DD_API_KEY: ${DATA_DOG_API_KEY:?Datadog api key is not defined}
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+      TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
