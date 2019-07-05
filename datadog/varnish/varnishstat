@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker exec -it analiz360_cache-proxy_1 varnishstat "$@"

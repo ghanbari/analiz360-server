@@ -48,7 +48,7 @@ instances:
     ##
     ## The service check is tagged by backend.
     #
-    # varnishadm: /usr/bin/varnishadm
+    varnishadm: /usr/bin/varnishadm
 
     ## @param secretfile - string - optional
     ## The path to the varnish secretfile used in the varnishadm command, if enabled.

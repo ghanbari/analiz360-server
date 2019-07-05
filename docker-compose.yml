@@ -67,7 +67,6 @@ services:
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./api/docker/varnish/conf:/usr/local/etc/varnish:ro
-      - /usr/local/bin/varnishstat:/usr/local/bin/varnishstat:exec
     tmpfs:
       - /usr/local/var/varnish:exec
     ports:
@@ -123,6 +122,7 @@ services:
       - cache-proxy
       - rabbit
     ports:
+      - "81:81"
       - "443:443"
     environment:
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
@@ -204,7 +204,7 @@ services:
       DD_LOGS_ENABLED: "true"
     volumes:
       - ./logs/nginx/:/var/log/nginx/:ro
-      - /usr/local/bin/varnishstat:/usr/bin/varnishstat:exec
+      - /usr/bin/docker:/usr/bin/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
