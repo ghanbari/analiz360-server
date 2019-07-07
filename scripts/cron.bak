@@ -21,7 +21,5 @@
 #
 # m h  dom mon dow   command
 
-*/15 1-2 * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} exec php bin/console alexa:report --no-interaction -c 100 -m 250M > /dev/null 2>&1 &
-*/30 2-21 * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} exec php bin/console alexa:report --no-interaction -c 100 -m 250M > /dev/null 2>&1 &
-*/30 21-23 * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} exec php bin/console alexa:report --no-interaction -c 5 -m 800M > /dev/null 2>&1 &
-@midnight docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} exec php bin/console app:calculate-score --no-interaction --cacheSize=200 > /dev/null 2>&1 &
+* */1 * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} --compatibility up -d --scale alexa=2 alexa
+@midnight docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} --compatibility exec alexa bin/console app:calculate-score --no-interaction --cacheSize=200 > /dev/null 2>&1 &

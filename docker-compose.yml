@@ -185,13 +185,18 @@ services:
     image: ${CONTAINER_REGISTRY_BASE}/php
     depends_on:
       - php
-    command: ["bin/console", "alexa:report", "--no-interaction", "-c", "100", "-m", "250M"]
+    command: ["bin/console", "alexa:report", "--no-interaction", "-c", "50", "-m", "100M"]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 400M
     environment:
       <<: [*api-params]
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
     volumes:
       - ./logs/symfony:/srv/api/var/log:cached
-    restart: always
+    restart: on-failure
 
   datadog:
     build:
