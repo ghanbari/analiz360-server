@@ -35,6 +35,7 @@ services:
     environment:
       <<: [*api-params]
     volumes:
+      - ./api/repo/public:/srv/api/public:rw
       - ./logs/symfony:/srv/api/var/log:cached
     restart: always
 

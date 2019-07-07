@@ -32,9 +32,21 @@ RUN set -eux; \
 		icu-dev \
 		libzip-dev \
 		zlib-dev \
+        freetype \
+        libpng \
+        libjpeg-turbo \
+        freetype-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
 	; \
 	\
 	docker-php-ext-configure zip --with-libzip; \
+	docker-php-ext-configure gd \
+        --with-gd \
+        --with-freetype-dir=/usr/include/ \
+        --with-png-dir=/usr/include/ \
+        --with-jpeg-dir=/usr/include/ \
+     ; \
 	docker-php-ext-install -j$(nproc) \
 		intl \
 		pdo_mysql \
@@ -61,7 +73,8 @@ RUN set -eux; \
 	)"; \
 	apk add --no-cache --virtual .api-phpexts-rundeps $runDeps; \
 	\
-	apk del .build-deps
+	apk del .build-deps; \
+	apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
