@@ -124,6 +124,7 @@ services:
       - api
       - cache-proxy
       - rabbit
+      - mercure
     ports:
       - "81:81"
       - "443:443"
@@ -192,8 +193,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 400M
+          cpus: '0.25'
+          memory: 330M
     environment:
       <<: [*api-params]
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
