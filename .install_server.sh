@@ -70,6 +70,7 @@ if [[ ${WL_CLONE_PROJECT} =~ ^[Yy]$ ]]; then
         echo "change working directory"
         cd "${PROJECT_DIR}/${PROJECT_NAME}"
         export PROJECT_DIR=$(pwd)
+        echo "PROJECT_DIR=${PROJECT_DIR}" >> /etc/environment
     else
         echo "project folder is not exists(${PROJECT_DIR}/${PROJECT_NAME})."
     fi
@@ -124,3 +125,5 @@ fi
 if [[ -f "$PROJECT_DIR/scripts/.init_project.sh" ]]; then
     source "$PROJECT_DIR/scripts/.init_project.sh"
 fi
+
+echo "Please reboot system..."
