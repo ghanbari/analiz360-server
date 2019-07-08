@@ -19,6 +19,8 @@ x-api-envs:
     APP_SECRET: ${APP_SECRET:?App secret is not defined}
     APP_OVER_HTTPS: ${APP_OVER_HTTPS:?App is over https or http?}
     APP_BASE_URL: ${APP_BASE_URL?App base url is not defined}
+    APP_SMS_API_KEY: ${APP_SMS_API_KEY?App sms api key is not defined}
+    APP_SMS_SENDER_NUMBER: ${APP_SMS_SENDER_NUMBER?App sms number is not defined}
     TZ: ${APP_TIMEZONE:-Asia/Tehran}
 
 services:

@@ -66,7 +66,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
         sed -i.bak "s;explode(',', \$trustedProxies);['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/20', '127.0.0.1/20'];" public/index.php
 	fi
 
-    if [ "$1" != 'bin/console' ]; then
+    if [[ "$1" != 'bin/console' ]]; then
         echo "Waiting for db to be ready..."
         until bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
             sleep 1

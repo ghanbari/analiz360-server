@@ -21,5 +21,5 @@
 #
 # m h  dom mon dow   command
 
-* */1 * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} --compatibility up -d --scale alexa=2 alexa
+*/15 * * * * docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} --compatibility up -d --scale alexa=2 alexa
 @midnight docker-compose -f ${PROJECT_DIR}/docker-compose.yml -f ${PROJECT_DIR}/docker-compose.prod.yml --project-directory=${PROJECT_DIR} --compatibility exec alexa bin/console app:calculate-score --no-interaction --cacheSize=200 > /dev/null 2>&1 &
