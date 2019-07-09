@@ -189,7 +189,7 @@ services:
     image: ${CONTAINER_REGISTRY_BASE}/php
     depends_on:
       - php
-    command: ["bin/console", "alexa:report", "--no-interaction", "-c", "50", "-m", "100M"]
+    command: ["bin/console", "alexa:report", "--no-interaction", "-c", "25", "-m", "70M"]
     deploy:
       resources:
         limits:
