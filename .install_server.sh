@@ -117,7 +117,7 @@ fi
 
 ## begin block: install cron task
 if [[ -f "${PROJECT_DIR}/scripts/cron.bak" ]]; then
-    cat ${PROJECT_DIR}/scripts/cron.bak | envsubst | crontab
+    sed "1 i\PATH=${PATH}" ${PROJECT_DIR}/scripts/cron.bak | envsubst | crontab
     service cron restart
 fi
 ## end block: install cron task
