@@ -214,7 +214,7 @@ services:
       TZ: ${APP_TIMEZONE:-Asia/Tehran}
       DD_LOGS_ENABLED: "true"
     volumes:
-      - ./logs/nginx/:/var/log/nginx/:ro
+      - ./logs:/var/log:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
