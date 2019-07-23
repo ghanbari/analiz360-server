@@ -123,7 +123,8 @@ RUN set -eux; \
             composer run-script --no-dev post-install-cmd; \
     fi; \
 	chmod +x bin/console; sync
-VOLUME /srv/api/var
+# Cache folder size is a little and log folder is mounted
+#VOLUME /srv/api/var
 
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
